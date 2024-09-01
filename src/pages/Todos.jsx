@@ -123,16 +123,38 @@ export default function Todos() {
     navigate("/login");
   };
 
+  const handleCancelTodoButton = () => {
+    setIsCreating(false);
+  };
+  const handleCancelEditButton = (index) => {
+    return (e) => {
+      e.preventDefault();
+      const newIsEditing = isEditing.map((el, i) => {
+        return i === index ? !el : el;
+      });
+      setIsEditing(newIsEditing);
+    };
+  };
   return (
-    <div className="todos-container">
-      <h2 className="todos-title">Your Todos</h2>{" "}
-      <div className="button-group">
-        <button onClick={() => setIsCreating(!isCreating)}>Create Todo</button>
-        <button onClick={handleProfileButton}>Profile</button>
+    <div className="todosPage-todos-container">
+      <h2 className="todosPage-todos-title">Your Todos</h2>{" "}
+      <div className="todosPage-buttons-container">
+        <button
+          className="todosPage-btn-create-todo"
+          onClick={() => setIsCreating(!isCreating)}
+        >
+          Create Todo
+        </button>
+        <button className="todosPage-btn-profile" onClick={handleProfileButton}>
+          Profile
+        </button>
       </div>
       {/* Form for Creating a New Todo */}
       {isCreating && (
-        <form onSubmit={handleCreateTodo}>
+        <form className="todosPage-todo-form" onSubmit={handleCreateTodo}>
+          <label className="todosPage-form-label" htmlFor="title">
+            Title
+          </label>
           <input
             type="text"
             name="title"
@@ -140,14 +162,19 @@ export default function Todos() {
             value={formData.title}
             onChange={handleInputChange}
           />
-          <input
-            type="text"
+          <label className="todosPage-form-label" htmlFor="description">
+            Description
+          </label>
+          <textarea
+            id="description"
             name="description"
-            placeholder="Description"
+            placeholder="Enter Todo Description"
+            rows="4"
             value={formData.description}
             onChange={handleInputChange}
-          />
-          <label>
+            required
+          ></textarea>
+          <label className="todosPage-form-label">
             <input
               type="checkbox"
               name="completed"
@@ -156,69 +183,97 @@ export default function Todos() {
             />
             Completed
           </label>
-          <button type="submit">Save Todo</button>
+          <div className="todosPage-create-todo-btn-group">
+            <button type="submit" className="todosPage-btn-submit-todo">
+              Add Todo
+            </button>
+            <button
+              type="submit"
+              className="todosPage-btn-submit-todo todosPage-btn-cancel-todo"
+              onClick={handleCancelTodoButton}
+            >
+              Cancel Todo
+            </button>
+          </div>
         </form>
       )}
-      <ul className="todos-list">
-        {todos.map((todo, index) =>
-          isEditing[index] ? (
-            <form key={todo._id} onSubmit={handleEditForm(todo._id, index)}>
-              <input
-                type="text"
-                name="title"
-                placeholder="Title"
-                value={todo.title}
-                onChange={handleChangeOnForms(index)}
-              />
-              <input
-                type="text"
-                name="description"
-                placeholder="Description"
-                value={todo.description}
-                onChange={handleChangeOnForms(index)}
-              />
-              <label>
+      <ul className="todosPage-todos-list">
+        {todos.map((todo, index) => (
+          <li className="todosPage-todo-item" key={todo._id}>
+            {isEditing[index] ? (
+              <form
+                key={todo._id}
+                className="todosPage-form-edit-todo"
+                onSubmit={handleEditForm(todo._id, index)}
+              >
+                <label className="todosPage-form-label">Title</label>
                 <input
-                  type="checkbox"
-                  name="completed"
-                  value={todo.completed}
+                  type="text"
+                  name="title"
+                  placeholder="Title"
+                  value={todo.title}
                   onChange={handleChangeOnForms(index)}
                 />
-                Completed
-              </label>
-              <button type="submit">Save Todo</button>
-            </form>
-          ) : (
-            <li className="todo-item" key={todo._id}>
-              <div
-                className={`todo-content ${
-                  todo.completed ? "completed-todo" : ""
-                }`}
-              >
-                <h3 className="todo-title">{todo.title}</h3>
-                <p className="todo-description">{todo.description}</p>
-              </div>
-              <div className="todo-actions">
-                <button
-                  className="edit-button"
-                  onClick={handleEditButton(index)}
-                >
-                  Edit
+                <label className="todosPage-form-label">Description</label>
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={todo.description}
+                  onChange={handleChangeOnForms(index)}
+                  rows="4"
+                />
+                <label>
+                  <input
+                    type="checkbox"
+                    name="completed"
+                    checked={todo.completed}
+                    onChange={handleChangeOnForms(index)}
+                  />
+                  Completed
+                </label>
+                <button type="submit" className="todosPage-btn-save">
+                  Save Todo
                 </button>
                 <button
-                  className="delete-button"
-                  onClick={() => handleDeleteTodo(todo._id)}
+                  type="submit"
+                  className="todosPage-btn-save todosPage-btn-cancelEdit"
+                  onClick={handleCancelEditButton(index)}
                 >
-                  Delete
+                  Keep It
                 </button>
-              </div>
-            </li>
-          )
-        )}
-        <button className="delete-button" onClick={handleLogoutButton}>
-          log out
-        </button>
+              </form>
+            ) : (
+              <>
+                <div
+                  className={`todosPage-todo-content ${
+                    todo.completed ? "todosPage-completed" : ""
+                  }`}
+                >
+                  <h3>{todo.title}</h3>
+                  <p>{todo.description}</p>
+                </div>
+                <div className="todosPage-todo-actions">
+                  <button
+                    className="todosPage-btn-edit"
+                    onClick={handleEditButton(index)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="todosPage-btn-delete"
+                    onClick={() => handleDeleteTodo(todo._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </li>
+        ))}
       </ul>
+      <button className="todosPage-btn-logout" onClick={handleLogoutButton}>
+        logout
+      </button>
     </div>
   );
 }

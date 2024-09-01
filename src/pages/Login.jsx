@@ -32,10 +32,10 @@ export default function Login() {
     checkIfLoggedIn();
   }, []);
   return (
-    <div className="login-container">
-      <h2 className="login-title">Login</h2>
-      <form className="login-form" onSubmit={onSubmit}>
-        <div className="form-group">
+    <div className="loginPaga-login-container">
+      <h2 className="loginPaga-login-title">Login</h2>
+      <form className="loginPaga-login-form" onSubmit={onSubmit}>
+        <div className="loginPaga-form-group">
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -46,7 +46,7 @@ export default function Login() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="loginPaga-form-group">
           <label htmlFor="password">Password</label>
           <input
             type="password"
@@ -57,12 +57,14 @@ export default function Login() {
             required
           />
         </div>
-        <button type="submit" className="login-button">
-          Login
-        </button>
-        <Link to="/register" className="login-button">
-          Sign Up
-        </Link>
+        <div className="loginPaga-button-container">
+          <button type="submit" className="loginPaga-btn-primary">
+            Login
+          </button>
+          <Link to="/register" className="loginPaga-btn-link">
+            Sign Up
+          </Link>
+        </div>
       </form>
     </div>
   );

@@ -34,48 +34,50 @@ export default function Register() {
   };
 
   return (
-    <div className="register-container">
-      <h2 className="register-title">Register</h2>
-      <form className="register-form" onSubmit={onSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={onChange}
-            required
-          />
-        </div>
+    <div className="registerPage-register-container">
+      <h2>Register</h2>
+      <form className="registerPage-register-form" onSubmit={onSubmit}>
+        <label htmlFor="username" className="registerPage-form-label">
+          Username
+        </label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          value={formData.username}
+          onChange={onChange}
+          required
+        />
+        <label htmlFor="email" className="registerPage-form-label">
+          Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={onChange}
+          required
+        />
+        <label htmlFor="password" className="registerPage-form-label">
+          Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={onChange}
+          required
+        />
 
-        <button type="submit" className="register-button">
+        <button type="submit" className="registerPage-btn-register">
           Register
         </button>
-        <Link to="/login">Login</Link>
       </form>
+      <Link to="/login" className="registerPage-btn-link">
+        Login
+      </Link>
     </div>
   );
 }
