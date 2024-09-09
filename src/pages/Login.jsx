@@ -1,70 +1,84 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Group from './../components/Group/Group';
+import { errorCatcher } from './../utils/formUtils';
+import {
+  loginFormInputs,
+  loginFormButtons,
+  InputInitializer,
+  ButtonInitializer,
+} from './../config/formData';
+import { changeInputState, objectInputOperation } from './../utils/inputUtils';
+import { groupInputHandler } from './../components/Group/groupUtils';
+import { loginUser } from './../utils/api';
+import { checkIfLoggedIn } from './../utils/pageUtils';
+import { handleError } from './../utils/errorUtils';
 
-import { loginUser, getUser } from "../utils/api";
-import "./../styles/Login.css";
-
+import './../styles/Login.css';
 export default function Login() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const [loginFormData, setLoginFormData] = useState({
+    email: '',
+    password: '',
   });
+
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const response = await loginUser(formData);
-    localStorage.setItem("jwtToken", response.token);
-    localStorage.setItem("userId", response.user_id);
-    console.log(response);
-    navigate("/todos");
-  };
+  const location = useLocation();
+
+  const inputs = new InputInitializer(loginFormInputs);
+  inputs.setOnChange(changeInputState(setLoginFormData, objectInputOperation));
+  inputs.setValue(loginFormData);
+
+  const loginFormSubmit = errorCatcher(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      const response = await loginUser(loginFormData);
+      setIsLoading(false);
+      localStorage.setItem('jwtToken', response.token);
+      localStorage.setItem('userId', response.user_id);
+      navigate('/todos');
+    },
+    handleError(setErrorMessage, setIsLoading)
+  );
+
+  // Initialize form buttons with dynamic text and attributes
+  const buttons = new ButtonInitializer(loginFormButtons);
+  buttons.setText({
+    nameOfButton: 'login',
+    value: isLoading ? 'Loading...' : 'Login',
+  });
+  buttons.setAttribute({
+    nameOfButton: 'login',
+    nameOfAttribute: 'disabled',
+    value: isLoading ? true : false,
+  });
   useEffect(() => {
-    async function checkIfLoggedIn() {
-      if (localStorage.getItem("jwtToken") || localStorage.getItem("userId")) {
-        const response = await getUser(localStorage.getItem("userId"));
-        if (response) {
-          navigate("/todos");
-        }
-      }
+    setErrorMessage(location?.state);
+    async function loggedIn() {
+      const isLoggedIn = await checkIfLoggedIn();
+      if (isLoggedIn.status === false) localStorage.clear();
+      else navigate('/todos');
     }
-    checkIfLoggedIn();
+    loggedIn();
   }, []);
+
   return (
-    <div className="loginPaga-login-container">
-      <h2 className="loginPaga-login-title">Login</h2>
-      <form className="loginPaga-login-form" onSubmit={onSubmit}>
-        <div className="loginPaga-form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className="loginPaga-form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className="loginPaga-button-container">
-          <button type="submit" className="loginPaga-btn-primary">
-            Login
-          </button>
-          <Link to="/register" className="loginPaga-btn-link">
-            Sign Up
-          </Link>
-        </div>
+    <div className="login-container">
+      <h2>Login</h2>
+      <form className="login-form" onSubmit={loginFormSubmit}>
+        {/* Render form inputs */}
+        <Group elements={groupInputHandler(inputs.data)} />
+
+        {/* Display error message if there is one */}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+        {/* Render form buttons */}
+        <Group
+          className="button-group"
+          elements={groupInputHandler(buttons.data)}
+        />
       </form>
     </div>
   );

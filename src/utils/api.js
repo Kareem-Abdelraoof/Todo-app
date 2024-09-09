@@ -15,55 +15,54 @@ api.interceptors.request.use(
   }
 );
 
-export const registerUser = async (User) => {
-  const response = await api.post("/auth/register", User);
-  return response.data;
+const handleApiRequest = async (method, url, data = null) => {
+  const response = await api.request({ method, url, data });
+  return response;
 };
 
+// authentication routes management
+export const registerUser = async (user) => {
+  const response = await handleApiRequest("post", "/auth/register", user);
+  return response.data;
+};
 export const loginUser = async (user) => {
-  const response = await api.post("/auth/login", user);
+  const response = await handleApiRequest("post", "/auth/login", user);
   return response.data;
 };
-export const getUser = async (id) => {
-  const response = await api.get(`/users/${id}`);
-  return response.data;
-};
-
-export const logoutUser = async () => {
-  const response = await api.get("/auth/logout");
-  return response.data;
-};
-
+export const logoutUser = () => handleApiRequest("get", "/auth/logout");
 export const changeUserPassword = async (data) => {
-  const response = await api.patch(`/auth/change-password`, data);
-  return response.data;
-};
-export const updateUser = async (data) => {
-  const response = await api.patch(
-    `/users/${localStorage.getItem("userId")}`,
+  const response = await handleApiRequest(
+    "patch",
+    "auth/change-password",
     data
   );
   return response.data;
 };
-
-export const deleteTodo = async (id) => {
-  await api.delete(`/todos/${id}`);
-  return { message: "deleted successfully" };
+// users routes management
+export const getUser = async (id) => {
+  const response = await handleApiRequest("get", `/users/${id}`);
+  return response.data;
 };
 
+export const updateUser = (data) => {
+  const userId = localStorage.getItem("userId");
+  console.log(userId);
+  return handleApiRequest("patch", `/users/${userId}`, data);
+};
+// todos routes management
+export const getTodos = async () => {
+  const response = await handleApiRequest("get", "/todos");
+  return response.data;
+};
+
+export const createTodo = async (todo) => {
+  const response = await handleApiRequest("post", "/todos", todo);
+  return response.data;
+};
 export const updateTodo = async (id, data) => {
-  const response = await api.patch(`/todos/${id}`, data);
+  const response = await handleApiRequest("patch", `/todos/${id}`, data);
   return response.data;
 };
-
-export const createTodo = async (data) => {
-  const response = await api.post(`/todos/`, data);
-  return response.data;
-};
-export const deleteUser = (data) => {
-  api.post(`/users/${data.userId}`, data.User);
-};
-export const getTodos = async (data) => {
-  const response = await api.get(`/todos/`);
-  return response.data;
+export const deleteTodo = async (id) => {
+  await handleApiRequest("delete", `/todos/${id}`);
 };

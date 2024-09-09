@@ -1,139 +1,174 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { changeUserPassword, updateUser, getUser } from "../utils/api";
-import "./../styles/Profile.css";
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import Group from './../components/Group/Group';
+import { errorCatcher } from './../utils/formUtils';
+import {
+  profilePasswordFormInputs,
+  profilePasswordFormButtons,
+  profileUpdateFormInputs,
+  profileUpdateFormButtons,
+  InputInitializer,
+  ButtonInitializer,
+} from './../config/formData';
+import { changeInputState, objectInputOperation } from './../utils/inputUtils';
+import { groupInputHandler } from './../components/Group/groupUtils';
+import { changeUserPassword, updateUser, getUser } from './../utils/api';
+import { checkIfLoggedIn } from './../utils/pageUtils';
+import { handleError } from './../utils/errorUtils';
 
+import './../styles/Profile.css';
 export default function Profile() {
   const navigate = useNavigate();
-  const [passwordData, setPasswordData] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmNewPassword: "",
+  const [passwordFormData, setPasswordFormData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
   });
-  const [infoData, setInfoData] = useState({
-    email: "",
-    username: "",
+  const [updateFormData, setUpdateFormData] = useState({
+    email: '',
+    username: '',
   });
+  const [isLoadingPassword, setIsloadingPassword] = useState(false);
+  const [isLoadingUpdate, setIsloadingUpdate] = useState(false);
+  const [errorMessagePassword, setErrorMessagePassword] = useState('');
+  const [errorMessageUpdate, setErrorMessageUpdate] = useState('');
+  const [hasChangedInfo, setHasChangedInfo] = useState(false);
+  const [hasChangedPassword, setHasChangedPassword] = useState(false);
+
+  // Initialize password form Inputs with dynamic text and attributes
+  const passwordInputs = new InputInitializer(profilePasswordFormInputs);
+  passwordInputs.setOnChange(
+    changeInputState(setPasswordFormData, objectInputOperation)
+  );
+  passwordInputs.setValue(passwordFormData);
+
+  // Initialize password form buttons with dynamic text and attributes
+  const passwordButtons = new ButtonInitializer(profilePasswordFormButtons);
+  passwordButtons.setText({
+    nameOfButton: 'update-password',
+    value: isLoadingPassword ? 'Loading...' : 'Update Password',
+  });
+  passwordButtons.setAttribute({
+    nameOfButton: 'update-password',
+    nameOfAttribute: 'disabled',
+    value: isLoadingPassword ? true : false,
+  });
+  // Initialize update form Inputs with dynamic text and attributes
+  const updateInputs = new InputInitializer(profileUpdateFormInputs);
+  updateInputs.setOnChange(
+    changeInputState(setUpdateFormData, objectInputOperation)
+  );
+  updateInputs.setValue(updateFormData);
+
+  // Initialize update form buttons with dynamic text and attributes
+  const updateButtons = new ButtonInitializer(profileUpdateFormButtons);
+  updateButtons.setText({
+    nameOfButton: 'update-info',
+    value: isLoadingUpdate ? 'Loading...' : 'Update Info',
+  });
+  updateButtons.setAttribute({
+    nameOfButton: 'update-info',
+    nameOfAttribute: 'disabled',
+    value: isLoadingUpdate ? true : false,
+  });
+
+  // password form submit
+  const profilePasswordFormSubmit = errorCatcher(
+    async (e) => {
+      e.preventDefault();
+      setIsloadingPassword(true);
+      const response = await changeUserPassword(passwordFormData);
+      setHasChangedPassword(true);
+      setIsloadingPassword(false);
+    },
+    handleError(setErrorMessagePassword, setIsloadingPassword)
+  );
+
+  // update form submit
+  const profileUpdateFormSubmit = errorCatcher(
+    async (e) => {
+      e.preventDefault();
+      setIsloadingUpdate(true);
+      const response = await updateUser(updateFormData);
+      console.log(response);
+      setHasChangedInfo(true);
+      setIsloadingUpdate(false);
+    },
+    handleError(setErrorMessageUpdate, setIsloadingUpdate)
+  );
+
+  console.log(
+    `the jwtToken is :${localStorage.getItem('jwtToken')}\n and the userId is :${localStorage.getItem('userId')}`
+  );
+
   useEffect(() => {
-    if (!localStorage.getItem("jwtToken") || !localStorage.getItem("userId")) {
-      navigate("/login");
-    } else {
-      async function checkIfLoggedIn() {
-        const response = await getUser(localStorage.getItem("userId"));
-        if (!response) {
-          localStorage.clear();
-          navigate("/login");
-        } else {
-          const { user } = await getUser(localStorage.getItem("userId"));
-          setInfoData({ email: user.email, username: user.username });
-        }
+    async function loggedIn() {
+      const isLoggedIn = await checkIfLoggedIn();
+      if (isLoggedIn.status === true)
+        setUpdateFormData({
+          email: isLoggedIn.user.email,
+          username: isLoggedIn.user.username,
+        });
+      else {
+        localStorage.clear();
+        navigate('/login', { state: 'You Must Login First' });
       }
-      checkIfLoggedIn();
     }
+    loggedIn();
   }, []);
 
-  const change = (name) => {
-    if (name === "password") return { data: passwordData, fn: setPasswordData };
-    if (name === "info") return { data: infoData, fn: setInfoData };
-  };
-  const changeForms = (name) => {
-    const operation = change(name);
-    return (e) => {
-      operation.fn({ ...operation.data, [e.target.name]: e.target.value });
-    };
-  };
-  const handleSubmitPassword = async (e) => {
-    e.preventDefault();
-    const response = await changeUserPassword(passwordData);
-    console.log(response);
-    setPasswordData({
-      oldPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    });
-  };
-  const handleSubmitInfo = async (e) => {
-    e.preventDefault();
-    const response = await updateUser(infoData);
-  };
   return (
-    <div className="profile-container">
-      <div className="profile-forms">
-        <form onSubmit={handleSubmitInfo} className="form-update-info">
-          <div>
-            <h3>Update Your Information</h3>
-            <label className="form-label" htmlFor="email">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={infoData.email}
-              onChange={changeForms("info")}
-              required
-            />
-            <label className="form-label" htmlFor="username">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={infoData.username}
-              onChange={changeForms("info")}
-              required
-            />
+    <div>
+      <div className="profile-container">
+        <div className="profile-forms-Container">
+          <div className="profile-form">
+            <h3>Change Password</h3>
+            <form onSubmit={profilePasswordFormSubmit}>
+              <Group elements={groupInputHandler(passwordInputs.data)} />
+              {errorMessagePassword && (
+                <div className="error-message">{errorMessagePassword}</div>
+              )}
+              {hasChangedPassword && (
+                <div className="success-message">
+                  The User Password Updated Successfully
+                </div>
+              )}
+              <Group
+                className="button-group"
+                elements={groupInputHandler(passwordButtons.data)}
+              />
+            </form>
           </div>
-          <button type="submit" className="btn-update">
-            Change
-          </button>
-        </form>
-        <form onSubmit={handleSubmitPassword} className="form-update-password">
-          <h3>Change Your Password</h3>
-          <label className="form-label" htmlFor="oldPassword">
-            Old Password
-          </label>
-          <input
-            type="password"
-            id="oldPassword"
-            name="oldPassword"
-            value={passwordData.oldPassword}
-            onChange={changeForms("password")}
-            required
-          />
-          <label className="form-label" htmlFor="newPassword">
-            New Password
-          </label>
-          <input
-            type="password"
-            id="newPassword"
-            name="newPassword"
-            value={passwordData.newPassword}
-            onChange={changeForms("password")}
-            required
-          />
-          <label className="form-label" htmlFor="confirmNewPassword">
-            Confirm New Password
-          </label>
-          <input
-            type="password"
-            id="confirmNewPassword"
-            name="confirmNewPassword"
-            value={passwordData.confirmNewPassword}
-            onChange={changeForms("password")}
-            required
-          />
-          <button type="submit" className="btn-update">
-            Change Password
-          </button>
-        </form>
-      </div>
 
-      <div className="profile-actions">
-        <Link className="btn-back" to="/todos">
-          Back to todos
-        </Link>
+          <div className="profile-form">
+            <form
+              className="update-profile-form"
+              onSubmit={profileUpdateFormSubmit}
+            >
+              <div>
+                <h3>Update Profile Information</h3>
+                <Group elements={groupInputHandler(updateInputs.data)} />
+                {errorMessageUpdate && (
+                  <div className="error-message">{errorMessageUpdate}</div>
+                )}
+                {hasChangedInfo && (
+                  <div className="success-message">
+                    The User Updated Successfully
+                  </div>
+                )}
+              </div>
+              <Group
+                className="button-group"
+                elements={groupInputHandler(updateButtons.data)}
+              />
+            </form>
+          </div>
+        </div>
+        <div className="profile-link-container">
+          <Link to="/todos" className="profile-link">
+            Go To Your Todos
+          </Link>
+        </div>
       </div>
     </div>
   );
