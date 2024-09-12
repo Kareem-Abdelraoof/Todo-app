@@ -36,8 +36,8 @@ export default function Login() {
       setIsLoading(true);
       const response = await loginUser(loginFormData);
       setIsLoading(false);
-      localStorage.setItem('jwtToken', response.token);
-      localStorage.setItem('userId', response.user_id);
+      localStorage.setItem('jwtToken', response.data.token);
+      localStorage.setItem('userId', response.data.user_id);
       navigate('/todos');
     },
     handleError(setErrorMessage, setIsLoading)

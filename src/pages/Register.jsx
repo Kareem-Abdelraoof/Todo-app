@@ -58,8 +58,8 @@ export default function Register() {
     console.log(
       `the token is :${response.token} and the user id is ${response.user_id}`
     );
-    localStorage.setItem('jwtToken', response.token);
-    localStorage.setItem('userId', response.user_id);
+    localStorage.setItem('jwtToken', response.data.token);
+    localStorage.setItem('userId', response.data.user_id);
     navigate('/todos');
   }, handleError);
 

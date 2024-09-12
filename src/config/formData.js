@@ -1,5 +1,5 @@
 import CustomLink from './../components/CustomLink';
-import customInput from './../components/customInput';
+import CustomInput from './../components/CustomInput';
 import CustomButton from './../components/CustomButton';
 import CustomTextArea from './../components/CustomTextArea';
 
@@ -75,7 +75,7 @@ export class ButtonInitializer {
 
 export const loginFormInputs = [
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Email',
@@ -93,7 +93,7 @@ export const loginFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Password',
@@ -137,7 +137,7 @@ export const loginFormButtons = [
 
 export const registerFormInputs = [
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Username',
@@ -155,7 +155,7 @@ export const registerFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Email',
@@ -173,7 +173,7 @@ export const registerFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Password',
@@ -216,7 +216,7 @@ export const registerFormButtons = [
 
 export const profilePasswordFormInputs = [
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Old Password',
@@ -234,7 +234,7 @@ export const profilePasswordFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'New Password',
@@ -252,7 +252,7 @@ export const profilePasswordFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Confirm New Password',
@@ -284,7 +284,7 @@ export const profilePasswordFormButtons = [
 ];
 export const profileUpdateFormInputs = [
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Username',
@@ -302,7 +302,7 @@ export const profileUpdateFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Email',
@@ -335,7 +335,7 @@ export const profileUpdateFormButtons = [
 
 export const todosFormInputs = [
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Title',
@@ -370,7 +370,7 @@ export const todosFormInputs = [
     },
   },
   {
-    Component: NewInput,
+    Component: CustomInput,
     data: {
       label: {
         text: 'Completed',
